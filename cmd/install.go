@@ -12,7 +12,10 @@ import (
 )
 
 type model struct {
-	input string
+	inputs    []string
+	cursor    int
+	input     string
+	quitting  bool
 }
 
 func (m model) Init() tea.Cmd {
@@ -24,12 +27,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-			return m, tea.Quit
+			m.inputs = append(m.inputs, m.input)
+			m.input = ""
+			if m.cursor < 1 {
+				m.cursor++
+			} else {
+				return m, tea.Quit
+			}
 		case "backspace":
 			if len(m.input) > 0 {
 				m.input = m.input[:len(m.input)-1]
 			}
 		case "ctrl+c", "esc":
+			m.quitting = true
 			return m, tea.Quit
 		default:
 			m.input += msg.String()
@@ -39,7 +49,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return fmt.Sprintf("Enter the relay domain name: %s", m.input)
+	if m.quitting {
+		return "Exiting the program. Goodbye!\n"
+	}
+	switch m.cursor {
+	case 0:
+		return fmt.Sprintf("Enter the relay domain name: %s", m.input)
+	case 1:
+		return fmt.Sprintf("Enter the email address: %s", m.input)
+	default:
+		return "Thank you! Proceeding with installation..."
+	}
 }
 
 var installCmd = &cobra.Command{
@@ -48,7 +68,7 @@ var installCmd = &cobra.Command{
 	Long:  `Install and configure the nostr relay, including package installation, nginx configuration, firewall setup, SSL certificates, and starting the relay service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Create a new Bubble Tea program
-		p := tea.NewProgram(model{})
+		p := tea.NewProgram(model{inputs: make([]string, 0)})
 
 		// Run the Bubble Tea program to get user input
 		m, err := p.Run()
@@ -57,11 +77,22 @@ var installCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Extract the user input
-		relayDomain := m.(model).input
-		const email = "chris.machine@pm.me"
+		// Check if the program was exited with ctrl+c or esc
+		if m.(model).quitting {
+			fmt.Println("Installation canceled.")
+			os.Exit(0)
+		}
 
-		fmt.Printf("Starting the installation and configuration of the nostr relay with domain: %s...\n", relayDomain)
+		// Extract the user input
+		inputs := m.(model).inputs
+		if len(inputs) < 2 {
+			fmt.Println("Error: Not enough input provided.")
+			os.Exit(1)
+		}
+		relayDomain := inputs[0]
+		email := inputs[1]
+
+		fmt.Printf("Starting the installation and configuration of the nostr relay with domain: %s and email: %s...\n", relayDomain, email)
 
 		// Step 1: Install necessary packages using APT
 		manager.AptInstallPackages()
@@ -91,3 +122,4 @@ var installCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
+
