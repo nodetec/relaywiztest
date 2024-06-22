@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"github.com/nodetec/relaywiz/pkg/utils"
@@ -11,21 +12,19 @@ import (
 func ConfigureNginxHttp(domainName string) {
 	dirName := utils.GetDirectoryName(domainName)
 
-	utils.PrintInfo("Creating necessary directories...")
+	fmt.Println("Creating necessary directories...")
 	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", dirName), 0755)
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Error creating directories: %v", err))
-		return
+		log.Fatalf("Error creating directories: %v", err)
 	}
 
-	utils.PrintInfo("Removing existing nginx configuration if it exists...")
+	fmt.Println("Removing existing nginx configuration if it exists...")
 	err = os.Remove("/etc/nginx/conf.d/nostr_relay.conf")
 	if err != nil && !os.IsNotExist(err) {
-		utils.PrintError(fmt.Sprintf("Error removing existing nginx configuration: %v", err))
-		return
+		log.Fatalf("Error removing existing nginx configuration: %v", err)
 	}
 
-	utils.PrintInfo("Configuring nginx for HTTP...")
+	fmt.Println("Configuring nginx for HTTP...")
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -59,17 +58,15 @@ server {
 
 	err = os.WriteFile("/etc/nginx/conf.d/nostr_relay.conf", []byte(configContent), 0644)
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Error writing nginx configuration: %v", err))
-		return
+		log.Fatalf("Error writing nginx configuration: %v", err)
 	}
 
-	utils.PrintInfo("Reloading nginx to apply the configuration...")
+	fmt.Println("Reloading nginx to apply the configuration...")
 	err = exec.Command("systemctl", "reload", "nginx").Run()
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Error reloading nginx: %v", err))
-		return
+		log.Fatalf("Error reloading nginx: %v", err)
 	}
 
-	utils.PrintSuccess("Nginx configuration for HTTP completed successfully.")
+	fmt.Println("Nginx configuration for HTTP completed successfully.")
 }
 

@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"github.com/nodetec/relaywiz/pkg/manager"
 	"github.com/nodetec/relaywiz/pkg/network"
+	"github.com/nodetec/relaywiz/pkg/relay"
 
 	"github.com/spf13/cobra"
 )
 
-// Define a domain name and email (these can be replaced with configurations or environment variables)
+// Define default domain name and email
 const domainName = "relay.testrelay.xyz"
 const email = "chris.machine@pm.me"
 
@@ -30,6 +31,12 @@ var installCmd = &cobra.Command{
 
 		// Step 4: Get SSL certificates
 		network.GetCertificates(domainName, email)
+
+		// Step 5: Configure Nginx for HTTPS
+		network.ConfigureNginxHttps(domainName)
+
+		// Step 6: Download and install the relay binary
+		relay.InstallRelayBinary()
 
 		// Add other steps here for starting the relay service, etc.
 	},

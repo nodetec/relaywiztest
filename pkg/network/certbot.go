@@ -2,7 +2,8 @@ package network
 
 import (
 	"fmt"
-  "os"
+	"log"
+	"os"
 	"os/exec"
 	"github.com/nodetec/relaywiz/pkg/utils"
 )
@@ -14,25 +15,23 @@ func GetCertificates(domainName, email string) {
 	// Check if certificates already exist
 	if utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domainName)) &&
 		utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domainName)) {
-		utils.PrintSuccess(fmt.Sprintf("SSL certificates for %s already exist.", domainName))
+		fmt.Printf("SSL certificates for %s already exist.\n", domainName)
 		return
 	}
 
-	utils.PrintInfo("Creating necessary directories for Certbot...")
+	fmt.Println("Creating necessary directories for Certbot...")
 	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", dirName), 0755)
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Error creating directories for Certbot: %v", err))
-		return
+		log.Fatalf("Error creating directories for Certbot: %v", err)
 	}
 
-	utils.PrintInfo(fmt.Sprintf("Obtaining SSL certificates for %s using Certbot...", domainName))
+	fmt.Printf("Obtaining SSL certificates for %s using Certbot...\n", domainName)
 	cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 	err = cmd.Run()
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
-		return
+		log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 	}
 
-	utils.PrintSuccess(fmt.Sprintf("SSL certificates for %s obtained successfully.", domainName))
+	fmt.Printf("SSL certificates for %s obtained successfully.\n", domainName)
 }
 
