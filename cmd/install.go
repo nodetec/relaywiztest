@@ -52,14 +52,16 @@ func (m model) View() string {
 	if m.quitting {
 		return "Exiting the program. Goodbye!\n"
 	}
+	var prompt string
 	switch m.cursor {
 	case 0:
-		return fmt.Sprintf("Enter the relay domain name: %s", m.input)
+		prompt = fmt.Sprintf("Enter the relay domain name: %s", m.input)
 	case 1:
-		return fmt.Sprintf("Enter the email address: %s", m.input)
+		prompt = fmt.Sprintf("Enter the email address: %s", m.input)
 	default:
-		return "Thank you! Proceeding with installation..."
+		prompt = "Thank you! Proceeding with installation..."
 	}
+	return fmt.Sprintf("%s\n%s", prompt, "Use backspace to edit and enter to confirm.")
 }
 
 var installCmd = &cobra.Command{
