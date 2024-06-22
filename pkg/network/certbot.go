@@ -13,7 +13,9 @@ import (
 // Function to get SSL certificates using Certbot
 func GetCertificates(domainName, email string) bool {
 
-	prompt := pterm.DefaultInteractiveContinue
+	options := []string{"yes", "no"}
+
+	prompt := pterm.DefaultInteractiveContinue.WithOptions(options)
 
 	result, _ := prompt.Show("Do you want to obtain SSL certificates using Certbot? This step requires that you already have a configured domain name", "yes", "no")
 
@@ -47,5 +49,5 @@ func GetCertificates(domainName, email string) bool {
 	}
 
 	spinner.Success("SSL certificates obtained successfully.")
-  return true
+	return true
 }
