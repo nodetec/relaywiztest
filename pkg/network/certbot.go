@@ -38,7 +38,7 @@ func GetCertificates(domainName, email string) bool {
 	// Check if certificates already exist
 	if utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domainName)) &&
 		utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domainName)) {
-		spinner.Success("SSL certificates already exist.")
+		spinner.Info("SSL certificates already exist.")
 		return true
 	}
 

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/pterm/pterm"
 
 	"github.com/nodetec/relaywiz/pkg/manager"
@@ -22,8 +20,12 @@ var installCmd = &cobra.Command{
 
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
+    pubkey, _ := pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
 
-		fmt.Println()
+
+		pterm.Println()
+    pterm.Println("If you make a mistake, you can always re-run this installer.")
+		pterm.Println()
 
 		// Step 1: Install necessary packages using APT
 		manager.AptInstallPackages()
@@ -48,7 +50,7 @@ var installCmd = &cobra.Command{
 		relay.InstallRelayBinary()
 
 		// Step 7: Set up the relay service
-		relay.SetupRelayService(relayDomain)
+		relay.SetupRelayService(relayDomain, pubkey)
 
 		// Add other steps here for starting the relay service, etc.
 	},

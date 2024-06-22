@@ -6,8 +6,11 @@ import (
 	"os"
 	"os/exec"
 	"text/template"
+	"github.com/pterm/pterm"
 )
 
+
+// Template for the systemd service file
 const serviceTemplate = `[Unit]
 Description=Nostr Relay Pyramid
 After=network.target
@@ -18,7 +21,7 @@ User=nostr
 WorkingDirectory=/home/nostr
 Environment="DOMAIN={{.Domain}}"
 Environment="RELAY_NAME=nostr-relay-pyramid"
-Environment="RELAY_PUBKEY=asdf"
+Environment="RELAY_PUBKEY={{.PubKey}}"
 ExecStart=/usr/local/bin/nostr-relay-pyramid
 Restart=on-failure
 
@@ -26,22 +29,31 @@ Restart=on-failure
 WantedBy=multi-user.target
 `
 
+// Path for the systemd service file
 const serviceFilePath = "/etc/systemd/system/nostr-relay-pyramid.service"
 
+// Function to check if a user exists
 func userExists(username string) bool {
 	cmd := exec.Command("id", "-u", username)
 	err := cmd.Run()
 	return err == nil
 }
 
-func SetupRelayService(domain string) {
+// Function to set up the relay service
+func SetupRelayService(domain, pubKey string) {
+
+	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTP...")
+	// Check if the service file exists and remove it if it does
 	if _, err := os.Stat(serviceFilePath); err == nil {
-		fmt.Printf("Service file already exists at %s.\n", serviceFilePath)
-		return
+		err = os.Remove(serviceFilePath)
+		if err != nil {
+			log.Fatalf("Error removing service file: %v", err)
+		}
 	}
 
+	// Ensure the user for the relay service exists
 	if !userExists("nostr") {
-		fmt.Println("Creating user for nostr relay service...")
+    spinner.UpdateText("Creating user 'nostr'...")
 		err := exec.Command("adduser", "--disabled-login", "--gecos", "", "nostr").Run()
 		if err != nil {
 			log.Fatalf("Error creating user: %v", err)
@@ -50,19 +62,21 @@ func SetupRelayService(domain string) {
 		fmt.Println("User 'nostr' already exists.")
 	}
 
-	fmt.Println("Creating data directory...")
+	// Ensure the data directory exists and set ownership
+	const dataDir = "/var/lib/nostr-relay-pyramid"
+  spinner.UpdateText("Creating data directory...")
 	err := os.MkdirAll(dataDir, 0755)
 	if err != nil {
 		log.Fatalf("Error creating data directory: %v", err)
 	}
 
-	fmt.Println("Setting ownership of the data directory...")
 	err = os.Chown(dataDir, os.Getuid(), os.Getgid())
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
 	}
 
-	fmt.Println("Creating systemd service file...")
+	// Create the systemd service file
+  spinner.UpdateText("Creating service file...")
 	serviceFile, err := os.Create(serviceFilePath)
 	if err != nil {
 		log.Fatalf("Error creating service file: %v", err)
@@ -74,18 +88,20 @@ func SetupRelayService(domain string) {
 		log.Fatalf("Error parsing service template: %v", err)
 	}
 
-	err = tmpl.Execute(serviceFile, struct{ Domain string }{Domain: domain})
+	err = tmpl.Execute(serviceFile, struct{ Domain, PubKey string }{Domain: domain, PubKey: pubKey})
 	if err != nil {
 		log.Fatalf("Error executing service template: %v", err)
 	}
 
-	fmt.Println("Reloading systemd daemon...")
+	// Reload systemd to apply the new service
+  spinner.UpdateText("Reloading systemd daemon...")
 	err = exec.Command("systemctl", "daemon-reload").Run()
 	if err != nil {
 		log.Fatalf("Error reloading systemd daemon: %v", err)
 	}
 
-	fmt.Println("Enabling and starting nostr relay service...")
+	// Enable and start the nostr relay service
+  spinner.UpdateText("Enabling and starting service...")
 	err = exec.Command("systemctl", "enable", "nostr-relay-pyramid").Run()
 	if err != nil {
 		log.Fatalf("Error enabling nostr relay service: %v", err)
@@ -96,6 +112,6 @@ func SetupRelayService(domain string) {
 		log.Fatalf("Error starting nostr relay service: %v", err)
 	}
 
-	fmt.Println("Nostr relay service setup completed.")
+  spinner.Success("Nostr relay service configured")
 }
 
