@@ -9,8 +9,8 @@ import (
 )
 
 // Define a domain name and email (these can be replaced with configurations or environment variables)
-const domainName = "yourdomain.com"
-const email = "youremail@example.com"
+const domainName = "relay.testrelay.xyz"
+const email = "chris.machine@pm.me"
 
 var installCmd = &cobra.Command{
 	Use:   "install",
