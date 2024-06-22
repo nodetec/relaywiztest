@@ -25,6 +25,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter":
 			return m, tea.Quit
+		case "backspace":
+			if len(m.input) > 0 {
+				m.input = m.input[:len(m.input)-1]
+			}
 		case "ctrl+c", "esc":
 			return m, tea.Quit
 		default:
@@ -55,7 +59,7 @@ var installCmd = &cobra.Command{
 
 		// Extract the user input
 		relayDomain := m.(model).input
-    const email = "chris.machine@pm.me"
+		const email = "chris.machine@pm.me"
 
 		fmt.Printf("Starting the installation and configuration of the nostr relay with domain: %s...\n", relayDomain)
 
@@ -87,4 +91,3 @@ var installCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
-
