@@ -17,7 +17,10 @@ func GetCertificates(domainName, email string) bool {
 
 	prompt := pterm.DefaultInteractiveContinue.WithOptions(options)
 
-	result, _ := prompt.Show("Do you want to obtain SSL certificates using Certbot? This step requires that you already have a configured domain name", "yes", "no")
+	pterm.Println(pterm.Cyan("Do you want to obtain SSL certificates using Certbot?"))
+	pterm.Println(pterm.Cyan("This step requires that you already have a configured domain name."))
+
+	result, _ := prompt.Show("yes", "no")
 
 	if result == "no" {
 		return false
