@@ -1,4 +1,4 @@
-package apt
+package manager
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func commandExists(command string) bool {
 }
 
 // Function to install necessary packages
-func InstallPackages() {
+func AptInstallPackages() {
 	printInfo("Updating package lists silently...")
 	exec.Command("apt", "update", "-qq").Run()
 
@@ -51,37 +51,6 @@ func InstallPackages() {
 		printInfo("Enabling ufw...")
 		exec.Command("ufw", "enable").Run()
 	}
-
-	// Check if the nostr relay dependencies are installed, install if not
-	checkAndInstallDependencies()
-}
-
-// Function to check and install nostr relay dependencies
-func checkAndInstallDependencies() {
-	dependencies := []string{
-		"build-essential",
-		"cmake",
-		"protobuf-compiler",
-		"pkg-config",
-		"libssl-dev",
-		"git",
-	}
-
-	allInstalled := true
-	for _, dep := range dependencies {
-		if !isPackageInstalled(dep) {
-			allInstalled = false
-			break
-		}
-	}
-
-	if allInstalled {
-		printSuccess("All nostr relay dependencies are already installed.")
-	} else {
-		printInfo("Installing dependencies for nostr relay...")
-		args := append([]string{"install", "-y", "-qq"}, dependencies...)
-		exec.Command("apt", args...).Run()
-	}
 }
 
 // Function to check if a package is installed
@@ -90,3 +59,4 @@ func isPackageInstalled(packageName string) bool {
 	err := cmd.Run()
 	return err == nil
 }
+
