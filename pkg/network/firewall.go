@@ -11,18 +11,15 @@ import (
 func ConfigureFirewall() {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring firewall...")
 	exec.Command("ufw", "enable").Run()
-	// spinner.UpdateText("Firewall enabled successfully.")
 
 	// Allow HTTP and HTTPS traffic
 	err := exec.Command("ufw", "allow", "Nginx Full").Run()
-	// spinner.UpdateText("Allowing Nginx Full...")
 	if err != nil {
 		log.Fatalf("Error allowing Nginx Full: %v", err)
 	}
 
 	// Reload the firewall to apply the changes
 	err = exec.Command("ufw", "reload").Run()
-	// spinner.UpdateText("Reloading firewall...")
 	if err != nil {
 		log.Fatalf("Error reloading firewall: %v", err)
 	}
