@@ -25,7 +25,7 @@ func ConfigureNginxHttps(domainName string) {
 }
 
 upstream websocket {
-    server 127.0.0.1:8080;
+    server 0.0.0.0:3334;
 }
 
 server {

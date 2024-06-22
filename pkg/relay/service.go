@@ -16,7 +16,9 @@ After=network.target
 Type=simple
 User=nostr
 WorkingDirectory=/home/nostr
-Environment=DOMAIN=test,RELAY_NAME=nostr-relay-pyramid,RELAY_PUBKEY=asdf
+Environment="DOMAIN=test"
+Environment="RELAY_NAME=nostr-relay-pyramid"
+Environment="RELAY_PUBKEY=asdf"
 ExecStart=/usr/local/bin/nostr-relay-pyramid
 Restart=on-failure
 
