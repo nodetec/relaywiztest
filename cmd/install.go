@@ -78,7 +78,7 @@ var installCmd = &cobra.Command{
 		relay.InstallRelayBinary()
 
 		// Step 7: Set up the relay service
-		relay.SetupRelayService()
+		relay.SetupRelayService(relayDomain)
 
 		// Add other steps here for starting the relay service, etc.
 	},
