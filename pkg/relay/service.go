@@ -27,6 +27,13 @@ WantedBy=multi-user.target
 // Path for the systemd service file
 const serviceFilePath = "/etc/systemd/system/nostr-relay-pyramid.service"
 
+// Function to check if a user exists
+func userExists(username string) bool {
+	cmd := exec.Command("id", "-u", username)
+	err := cmd.Run()
+	return err == nil
+}
+
 // Function to create the systemd service file and start the service
 func SetupRelayService() {
 	// Check if the service file already exists
@@ -35,16 +42,21 @@ func SetupRelayService() {
 		return
 	}
 
-	// Create a user for the nostr relay service
-	fmt.Println("Creating user for nostr relay service...")
-	err := exec.Command("adduser", "--disabled-login", "--gecos", "", "nostr").Run()
-	if err != nil {
-		log.Fatalf("Error creating user: %v", err)
+	// Check if the user already exists
+	if !userExists("nostr") {
+		// Create a user for the nostr relay service
+		fmt.Println("Creating user for nostr relay service...")
+		err := exec.Command("adduser", "--disabled-login", "--gecos", "", "nostr").Run()
+		if err != nil {
+			log.Fatalf("Error creating user: %v", err)
+		}
+	} else {
+		fmt.Println("User 'nostr' already exists.")
 	}
 
 	// Set ownership of the data directory
 	fmt.Println("Setting ownership of the data directory...")
-	err = os.Chown("/var/lib/nostr-relay-pyramid", os.Getuid(), os.Getgid())
+	err := os.Chown("/var/lib/nostr-relay-pyramid", os.Getuid(), os.Getgid())
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
 	}
@@ -83,3 +95,4 @@ func SetupRelayService() {
 
 	fmt.Println("Nostr relay service setup completed.")
 }
+
