@@ -9,7 +9,7 @@ import (
 
 // Function to configure the firewall
 func ConfigureFirewall() {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring firewall to allow HTTP (port 80) and HTTPS (port 443) traffic...")
+	spinner, _ := pterm.DefaultSpinner.Start("Configuring firewall...")
 	exec.Command("ufw", "enable").Run()
 	// spinner.UpdateText("Firewall enabled successfully.")
 
