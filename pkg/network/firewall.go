@@ -10,6 +10,8 @@ import (
 func ConfigureFirewall() {
 	fmt.Println("Configuring firewall to allow HTTP (port 80) and HTTPS (port 443) traffic...")
 
+	exec.Command("ufw", "enable").Run()
+
 	// Allow HTTP and HTTPS traffic
 	err := exec.Command("ufw", "allow", "Nginx Full").Run()
 	if err != nil {
@@ -30,4 +32,3 @@ func ConfigureFirewall() {
 
 	fmt.Println("Firewall configuration completed successfully.")
 }
-
