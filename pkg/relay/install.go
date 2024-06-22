@@ -1,7 +1,6 @@
 package relay
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
