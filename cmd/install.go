@@ -20,11 +20,10 @@ var installCmd = &cobra.Command{
 
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
-    pubkey, _ := pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
-
+		pubkey, _ := pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
 
 		pterm.Println()
-    pterm.Println("If you make a mistake, you can always re-run this installer.")
+		pterm.Println(pterm.Yellow("If you make a mistake, you can always re-run this installer."))
 		pterm.Println()
 
 		// Step 1: Install necessary packages using APT
@@ -52,7 +51,10 @@ var installCmd = &cobra.Command{
 		// Step 7: Set up the relay service
 		relay.SetupRelayService(relayDomain, pubkey)
 
-		// Add other steps here for starting the relay service, etc.
+		pterm.Println()
+		pterm.Println(pterm.Magenta("The installation is complete."))
+		pterm.Println(pterm.Magenta("You can access your relay at wss://" + relayDomain))
+		pterm.Println()
 	},
 }
 

@@ -1,7 +1,6 @@
 package relay
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -59,7 +58,7 @@ func SetupRelayService(domain, pubKey string) {
 			log.Fatalf("Error creating user: %v", err)
 		}
 	} else {
-		fmt.Println("User 'nostr' already exists.")
+    spinner.UpdateText("User 'nostr' already exists")
 	}
 
 	// Ensure the data directory exists and set ownership
