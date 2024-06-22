@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pterm/pterm"
+
 	"github.com/nodetec/relaywiz/pkg/manager"
 	"github.com/nodetec/relaywiz/pkg/network"
 	"github.com/nodetec/relaywiz/pkg/relay"
@@ -18,6 +20,14 @@ var installCmd = &cobra.Command{
 	Long:  `Install and configure the nostr relay, including package installation, nginx configuration, firewall setup, SSL certificates, and starting the relay service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		reader := bufio.NewReader(os.Stdin)
+
+		result, _ := pterm.DefaultInteractiveTextInput.Show()
+
+		// Print a blank line for better readability
+		pterm.Println()
+
+		// Print the user's answer with an info prefix
+		pterm.Info.Printfln("You answered: %s", result)
 
 		// Get the relay domain name
 		fmt.Print("Enter the relay domain name: ")
@@ -59,4 +69,3 @@ var installCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
-
