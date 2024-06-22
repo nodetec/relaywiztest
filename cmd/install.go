@@ -23,7 +23,7 @@ var installCmd = &cobra.Command{
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
 
-		fmt.Printf("Starting the installation and configuration of the nostr relay with domain: %s and email: %s...\n", relayDomain, email)
+		fmt.Println()
 
 		// Step 1: Install necessary packages using APT
 		manager.AptInstallPackages()
