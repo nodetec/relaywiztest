@@ -35,7 +35,11 @@ var installCmd = &cobra.Command{
 		network.ConfigureNginxHttp(relayDomain)
 
 		// Step 4: Get SSL certificates
-		network.GetCertificates(relayDomain, email)
+		var shouldContinue = network.GetCertificates(relayDomain, email)
+
+		if !shouldContinue {
+			return
+		}
 
 		// Step 5: Configure Nginx for HTTPS
 		network.ConfigureNginxHttps(relayDomain)
