@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/pterm/pterm"
 )
 
 // URL of the binary to download
@@ -23,6 +25,8 @@ const dataDir = "/var/lib/nostr-relay-pyramid"
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
+
+	spinner, _ := pterm.DefaultSpinner.Start("Installing relay...")
 	// Ensure the data directory exists
 	err := os.MkdirAll(dataDir, 0755)
 	if err != nil {
@@ -72,6 +76,6 @@ func InstallRelayBinary() {
 		log.Fatalf("Error making file executable: %v", err)
 	}
 
-	fmt.Printf("%s downloaded, moved to %s, and made executable successfully.\n", tempFileName, destPath)
+  spinner.Success("Relay installed successfully.")
 }
 
