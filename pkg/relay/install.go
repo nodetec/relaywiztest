@@ -18,8 +18,17 @@ const binaryName = "nostr-relay-pyramid"
 // Destination directory for the binary
 const destDir = "/usr/local/bin"
 
+// Data directory for the relay
+const dataDir = "/var/lib/nostr-relay-pyramid"
+
 // Function to download and make the binary executable
 func InstallRelayBinary() {
+	// Ensure the data directory exists
+	err := os.MkdirAll(dataDir, 0755)
+	if err != nil {
+		log.Fatalf("Error creating data directory: %v", err)
+	}
+
 	// Determine the file name from the URL
 	tempFileName := filepath.Base(downloadURL)
 

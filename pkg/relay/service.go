@@ -56,7 +56,7 @@ func SetupRelayService() {
 
 	// Set ownership of the data directory
 	fmt.Println("Setting ownership of the data directory...")
-	err := os.Chown("/var/lib/nostr-relay-pyramid", os.Getuid(), os.Getgid())
+	err := os.Chown(dataDir, os.Getuid(), os.Getgid())
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
 	}
