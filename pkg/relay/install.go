@@ -15,15 +15,18 @@ const downloadURL = "https://github.com/github-tijlxyz/khatru-pyramid/releases/d
 // Name of the binary after downloading
 const binaryName = "nostr-relay-pyramid"
 
+// Destination directory for the binary
+const destDir = "/usr/local/bin"
+
 // Function to download and make the binary executable
 func InstallRelayBinary() {
 	// Determine the file name from the URL
 	tempFileName := filepath.Base(downloadURL)
 
-	// Create the file
+	// Create the temporary file
 	out, err := os.Create(tempFileName)
 	if err != nil {
-		log.Fatalf("Error creating file: %v", err)
+		log.Fatalf("Error creating temporary file: %v", err)
 	}
 	defer out.Close()
 
@@ -39,24 +42,27 @@ func InstallRelayBinary() {
 		log.Fatalf("Bad status: %s", resp.Status)
 	}
 
-	// Write the body to file
+	// Write the body to the temporary file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Fatalf("Error writing to file: %v", err)
+		log.Fatalf("Error writing to temporary file: %v", err)
 	}
 
-	// Rename the file
-	err = os.Rename(tempFileName, binaryName)
+	// Define the final destination path
+	destPath := filepath.Join(destDir, binaryName)
+
+	// Move the file to the destination directory
+	err = os.Rename(tempFileName, destPath)
 	if err != nil {
-		log.Fatalf("Error renaming file: %v", err)
+		log.Fatalf("Error moving file to /usr/local/bin: %v", err)
 	}
 
 	// Make the file executable
-	err = os.Chmod(binaryName, 0755)
+	err = os.Chmod(destPath, 0755)
 	if err != nil {
 		log.Fatalf("Error making file executable: %v", err)
 	}
 
-	fmt.Printf("%s downloaded, renamed to %s, and made executable successfully.\n", tempFileName, binaryName)
+	fmt.Printf("%s downloaded, moved to %s, and made executable successfully.\n", tempFileName, destPath)
 }
 
