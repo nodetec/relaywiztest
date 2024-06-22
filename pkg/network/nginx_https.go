@@ -2,23 +2,24 @@ package network
 
 import (
 	"fmt"
+	"github.com/nodetec/relaywiz/pkg/utils"
 	"log"
 	"os"
 	"os/exec"
-	"github.com/nodetec/relaywiz/pkg/utils"
+
+	"github.com/pterm/pterm"
 )
 
 // Function to configure nginx for HTTPS
 func ConfigureNginxHttps(domainName string) {
 	dirName := utils.GetDirectoryName(domainName)
 
-	fmt.Println("Removing existing nginx configuration if it exists...")
+	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 	err := os.Remove("/etc/nginx/conf.d/nostr_relay.conf")
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatalf("Error removing existing nginx configuration: %v", err)
 	}
 
-	fmt.Println("Configuring nginx for HTTPS...")
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -84,12 +85,10 @@ server {
 		log.Fatalf("Error writing nginx configuration: %v", err)
 	}
 
-	fmt.Println("Reloading nginx to apply the configuration...")
 	err = exec.Command("systemctl", "reload", "nginx").Run()
 	if err != nil {
 		log.Fatalf("Error reloading nginx: %v", err)
 	}
 
-	fmt.Println("Nginx configuration for HTTPS completed successfully.")
+	spinner.Success("Nginx configured for HTTPS")
 }
-
