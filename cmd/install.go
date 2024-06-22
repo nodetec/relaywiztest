@@ -8,8 +8,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Define a domain name (this can be replaced with a configuration or environment variable)
+// Define a domain name and email (these can be replaced with configurations or environment variables)
 const domainName = "yourdomain.com"
+const email = "youremail@example.com"
 
 var installCmd = &cobra.Command{
 	Use:   "install",
@@ -21,10 +22,16 @@ var installCmd = &cobra.Command{
 		// Step 1: Install necessary packages using APT
 		manager.AptInstallPackages()
 
-		// Step 2: Configure Nginx for HTTP
+		// Step 2: Configure the firewall
+		network.ConfigureFirewall()
+
+		// Step 3: Configure Nginx for HTTP
 		network.ConfigureNginxHttp(domainName)
 
-		// Add other steps here for firewall setup, SSL certificates, etc.
+		// Step 4: Get SSL certificates
+		network.GetCertificates(domainName, email)
+
+		// Add other steps here for starting the relay service, etc.
 	},
 }
 

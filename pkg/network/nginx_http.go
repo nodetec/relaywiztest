@@ -4,42 +4,28 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
+	"github.com/nodetec/relaywiz/pkg/utils"
 )
-
-// Function to print info messages
-func printInfo(message string) {
-	fmt.Println(message)
-}
-
-// Function to extract the directory name from the domain
-func getDirectoryName(domainName string) string {
-	domainParts := strings.Split(domainName, ".")
-	if len(domainParts) > 2 {
-		return domainParts[1]
-	}
-	return domainParts[0]
-}
 
 // Function to configure nginx for HTTP
 func ConfigureNginxHttp(domainName string) {
-	dirName := getDirectoryName(domainName)
+	dirName := utils.GetDirectoryName(domainName)
 
-	printInfo("Creating necessary directories...")
+	utils.PrintInfo("Creating necessary directories...")
 	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", dirName), 0755)
 	if err != nil {
-		fmt.Printf("Error creating directories: %v\n", err)
+		utils.PrintError(fmt.Sprintf("Error creating directories: %v", err))
 		return
 	}
 
-	printInfo("Removing existing nginx configuration if it exists...")
+	utils.PrintInfo("Removing existing nginx configuration if it exists...")
 	err = os.Remove("/etc/nginx/conf.d/nostr_relay.conf")
 	if err != nil && !os.IsNotExist(err) {
-		fmt.Printf("Error removing existing nginx configuration: %v\n", err)
+		utils.PrintError(fmt.Sprintf("Error removing existing nginx configuration: %v", err))
 		return
 	}
 
-	printInfo("Configuring nginx for HTTP...")
+	utils.PrintInfo("Configuring nginx for HTTP...")
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -73,17 +59,17 @@ server {
 
 	err = os.WriteFile("/etc/nginx/conf.d/nostr_relay.conf", []byte(configContent), 0644)
 	if err != nil {
-		fmt.Printf("Error writing nginx configuration: %v\n", err)
+		utils.PrintError(fmt.Sprintf("Error writing nginx configuration: %v", err))
 		return
 	}
 
-	printInfo("Reloading nginx to apply the configuration...")
+	utils.PrintInfo("Reloading nginx to apply the configuration...")
 	err = exec.Command("systemctl", "reload", "nginx").Run()
 	if err != nil {
-		fmt.Printf("Error reloading nginx: %v\n", err)
+		utils.PrintError(fmt.Sprintf("Error reloading nginx: %v", err))
 		return
 	}
 
-	printInfo("Nginx configuration for HTTP completed successfully.")
+	utils.PrintSuccess("Nginx configuration for HTTP completed successfully.")
 }
 
